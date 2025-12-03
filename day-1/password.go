@@ -57,9 +57,9 @@ func handleOneInput(step string, currentPosition int) int {
 	direction, shift := parseStep(step)
 	switch direction {
 	case Left:
-		return (currentPosition - shift) % 100
+		return ((currentPosition-shift)%100 + 100) % 100
 	case Right:
-		return (currentPosition + shift) % 100
+		return ((currentPosition+shift)%100 + 100) % 100
 	default:
 		panic("invalid direction")
 	}
