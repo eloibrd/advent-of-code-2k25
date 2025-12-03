@@ -15,7 +15,7 @@ const (
 	Right
 )
 
-func SolvePassword() {
+func SolvePasswordPart1() {
 	input := "day-1/input.txt"
 	position := 50
 	password := 0
@@ -26,13 +26,32 @@ func SolvePassword() {
 	}
 
 	for _, step := range steps {
-		position = handleOneInput(step, position)
+		position, _ = handleOneInput(step, position)
 		if position == 0 {
-			password++
+			password += 1
 		}
 	}
 
-	slog.Info("Found the password !", "value", strconv.Itoa(password))
+	slog.Info("DAY 1 | Found the password for part 1 : ", "value", strconv.Itoa(password))
+}
+
+func SolvePasswordPart2() {
+	input := "day-1/input.txt"
+	position := 50
+	password := 0
+
+	steps, err := readInput(input)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, step := range steps {
+		var increment int
+		position, increment = handleOneInput(step, position)
+		password += increment
+	}
+
+	slog.Info("DAY 1 | Found the password for part 2 : ", "value", strconv.Itoa(password))
 }
 
 func readInput(pathToFile string) ([]string, error) {
@@ -50,16 +69,32 @@ func readInput(pathToFile string) ([]string, error) {
 	return inputList, nil
 }
 
-func handleOneInput(step string, currentPosition int) int {
+func handleOneInput(step string, currentPosition int) (int, int) {
 	if len(step) == 0 {
-		return currentPosition
+		return currentPosition, 0
 	}
 	direction, shift := parseStep(step)
 	switch direction {
 	case Left:
-		return ((currentPosition-shift)%100 + 100) % 100
+		newPosition := currentPosition - shift
+		increment := 0
+		startedOnZero := currentPosition == 0
+		for newPosition < 0 {
+			newPosition += 100
+			increment++
+		}
+		if startedOnZero {
+			increment--
+		}
+		if newPosition == 0 {
+			increment++
+		}
+		return newPosition, increment
 	case Right:
-		return ((currentPosition+shift)%100 + 100) % 100
+		newPosition := currentPosition + shift
+		increment := newPosition / 100
+		newPosition %= 100
+		return newPosition, increment
 	default:
 		panic("invalid direction")
 	}
