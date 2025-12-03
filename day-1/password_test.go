@@ -24,3 +24,24 @@ func TestHandleOneInput(t *testing.T) {
 		})
 	}
 }
+
+func TestParseStep(t *testing.T) {
+	tests := []struct {
+		name          string
+		step          string
+		expectedShift int
+	}{
+		{"parse left", "L10", -10},
+		{"parse right", "R20", 20},
+		{"parse left with CRLF", "L30\r", -30},
+		{"parse right with CRLF", "R40\r", 40},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			shift := parseStep(tt.step)
+			if shift != tt.expectedShift {
+				t.Errorf("expected shift %d, got %d", tt.expectedShift, shift)
+			}
+		})
+	}
+}
