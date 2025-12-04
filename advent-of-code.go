@@ -7,5 +7,6 @@ import (
 func main() {
 	// day1.SolvePassword(1)
 	// day1.SolvePassword(2)
-	day2.SolveGiftShop()
+	day2.SolveGiftShop(1)
+	day2.SolveGiftShop(2)
 }

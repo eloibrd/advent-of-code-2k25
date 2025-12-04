@@ -18,7 +18,7 @@ type Range struct {
 	max int
 }
 
-type isIDInvalid func(int) bool
+type isIDInvalidFn func(int) bool
 
 func SolveGiftShop(part int) {
 	if !slices.Contains([]int{1, 2}, part) {
@@ -36,8 +36,13 @@ func SolveGiftShop(part int) {
 		panic(err)
 	}
 	for _, r := range ranges {
-		var invalidIDsInRange []int
-		invalidIDsInRange = searchInvalidIDsInRange(r, isIDInvalidPart1)
+		var validationFn isIDInvalidFn
+		if part == 1 {
+			validationFn = isIDInvalidPart1
+		} else {
+			validationFn = isIDInvalidPart2
+		}
+		invalidIDsInRange := searchInvalidIDsInRange(r, validationFn)
 		invalidIDs = append(invalidIDs, invalidIDsInRange...)
 	}
 	sum := computeSum(invalidIDs)
@@ -82,7 +87,7 @@ func parseRange(entry string) (Range, error) {
 	return Range{min: min, max: max}, nil
 }
 
-func searchInvalidIDsInRange(r Range, isInvalid isIDInvalid) []int {
+func searchInvalidIDsInRange(r Range, isInvalid isIDInvalidFn) []int {
 	invalidIDs := []int{}
 	for id := r.min; id <= r.max; id++ {
 		if isInvalid(id) {
@@ -107,6 +112,39 @@ func isIDInvalidPart1(id int) bool {
 	right := id % base
 
 	return left == right
+}
+
+func isIDInvalidPart2(id int) bool {
+	s := strconv.Itoa(id)
+	length := len(s)
+
+	// Try every possible pattern length
+	// Pattern size must divide total length
+	for size := 1; size <= length/2; size++ {
+		if length%size != 0 {
+			continue
+		}
+
+		block := s[:size]
+		k := length / size
+		ok := true
+
+		// Check all blocks
+		for i := 1; i < k; i++ {
+			start := i * size
+			end := start + size
+			if s[start:end] != block {
+				ok = false
+				break
+			}
+		}
+
+		if ok {
+			return true
+		}
+	}
+
+	return false
 }
 
 func computeSum(ids []int) int {

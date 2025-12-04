@@ -119,6 +119,32 @@ func TestSearchInvalidIDsInRangePart1(t *testing.T) {
 	}
 }
 
+func TestSearchInvalidIDsInRangePart2(t *testing.T) {
+	tests := []struct {
+		name        string
+		r           Range
+		expectedIDs []int
+	}{
+		{"no invalid IDs", Range{8, 10}, []int{}},
+		{"multiple invalid IDs same as part 1", Range{11, 22}, []int{11, 22}},
+		{"multiple invalid IDs with part 2 impl", Range{95, 115}, []int{99, 111}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ids := searchInvalidIDsInRange(tt.r, isIDInvalidPart2)
+			if len(ids) != len(tt.expectedIDs) {
+				t.Errorf("expected %d IDs, got %d", len(tt.expectedIDs), len(ids))
+				return
+			}
+			for i, id := range ids {
+				if id != tt.expectedIDs[i] {
+					t.Errorf("expected ID %d, got %d", tt.expectedIDs[i], id)
+				}
+			}
+		})
+	}
+}
+
 func TestIsIDInvalidPart1(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -132,6 +158,28 @@ func TestIsIDInvalidPart1(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := isIDInvalidPart1(tt.id)
+			if result != tt.expectedResult {
+				t.Errorf("expected %v, got %v", tt.expectedResult, result)
+			}
+		})
+	}
+}
+
+func TestIsIDInvalidPart2(t *testing.T) {
+	tests := []struct {
+		name           string
+		id             int
+		expectedResult bool
+	}{
+		{"valid ID even digits", 50, false},
+		{"valid ID odd digits", 54546, false},
+		{"invalid ID even digits on split 2", 223223, true},
+		{"invalid ID even digits on split 3", 232323, true},
+		{"invalid ID even digits on split 1", 777, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := isIDInvalidPart2(tt.id)
 			if result != tt.expectedResult {
 				t.Errorf("expected %v, got %v", tt.expectedResult, result)
 			}
