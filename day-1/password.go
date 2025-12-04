@@ -1,9 +1,10 @@
 package day1
 
 import (
-	"io"
+	_ "embed"
+	"fmt"
 	"log/slog"
-	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -15,58 +16,38 @@ const (
 	Right
 )
 
-func SolvePasswordPart1() {
-	input := "day-1/input.txt"
+//go:embed input.txt
+var input string
+
+func SolvePassword(part int) {
+	if !slices.Contains([]int{1, 2}, part) {
+		panic("Called with invalid part")
+	}
 	position := 50
 	password := 0
 
-	steps, err := readInput(input)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, step := range steps {
-		position, _ = handleOneInput(step, position)
-		if position == 0 {
-			password += 1
-		}
-	}
-
-	slog.Info("DAY 1 | Found the password for part 1 : ", "value", strconv.Itoa(password))
-}
-
-func SolvePasswordPart2() {
-	input := "day-1/input.txt"
-	position := 50
-	password := 0
-
-	steps, err := readInput(input)
-	if err != nil {
-		panic(err)
-	}
+	steps := readInput(input)
 
 	for _, step := range steps {
 		var increment int
 		position, increment = handleOneInput(step, position)
-		password += increment
+		if part == 1 && position == 0 {
+			password += 1
+		} else if part == 2 {
+			password += increment
+		}
 	}
 
-	slog.Info("DAY 1 | Found the password for part 2 : ", "value", strconv.Itoa(password))
+	slog.Info(fmt.Sprintf("DAY 1 | Found the password for part %d : ", part), slog.String("value", strconv.Itoa(password)))
 }
 
-func readInput(pathToFile string) ([]string, error) {
-	file, err := os.Open(pathToFile)
-	if err != nil {
-		return nil, err
+func readInput(pathToFile string) []string {
+	input = strings.TrimRight(input, "\n")
+	if len(input) == 0 {
+		panic("empty input.txt file")
 	}
-
-	content, err := io.ReadAll(file)
-	if err != nil {
-		return nil, err
-	}
-
-	inputList := strings.Split(string(content), "\n")
-	return inputList, nil
+	inputList := strings.Split(input, "\n")
+	return inputList
 }
 
 func handleOneInput(step string, currentPosition int) (int, int) {
