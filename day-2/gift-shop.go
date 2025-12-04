@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -17,7 +18,13 @@ type Range struct {
 	max int
 }
 
-func SolveGiftShop() {
+type isIDInvalid func(int) bool
+
+func SolveGiftShop(part int) {
+	if !slices.Contains([]int{1, 2}, part) {
+		panic("Called with invalid part")
+	}
+
 	invalidIDs := []int{}
 
 	formattedInput, err := formatInput(input)
@@ -29,7 +36,8 @@ func SolveGiftShop() {
 		panic(err)
 	}
 	for _, r := range ranges {
-		invalidIDsInRange := searchInvalidIDsInRange(r)
+		var invalidIDsInRange []int
+		invalidIDsInRange = searchInvalidIDsInRange(r, isIDInvalidPart1)
 		invalidIDs = append(invalidIDs, invalidIDsInRange...)
 	}
 	sum := computeSum(invalidIDs)
@@ -74,17 +82,17 @@ func parseRange(entry string) (Range, error) {
 	return Range{min: min, max: max}, nil
 }
 
-func searchInvalidIDsInRange(r Range) []int {
+func searchInvalidIDsInRange(r Range, isInvalid isIDInvalid) []int {
 	invalidIDs := []int{}
 	for id := r.min; id <= r.max; id++ {
-		if isIDInvalid(id) {
+		if isInvalid(id) {
 			invalidIDs = append(invalidIDs, id)
 		}
 	}
 	return invalidIDs
 }
 
-func isIDInvalid(id int) bool {
+func isIDInvalidPart1(id int) bool {
 	// Count digits
 	digits := int(math.Log10(float64(id))) + 1
 

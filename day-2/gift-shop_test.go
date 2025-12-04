@@ -93,7 +93,7 @@ func TestParseRange(t *testing.T) {
 	}
 }
 
-func TestSearchInvalidIDsInRange(t *testing.T) {
+func TestSearchInvalidIDsInRangePart1(t *testing.T) {
 	tests := []struct {
 		name        string
 		r           Range
@@ -105,7 +105,7 @@ func TestSearchInvalidIDsInRange(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ids := searchInvalidIDsInRange(tt.r)
+			ids := searchInvalidIDsInRange(tt.r, isIDInvalidPart1)
 			if len(ids) != len(tt.expectedIDs) {
 				t.Errorf("expected %d IDs, got %d", len(tt.expectedIDs), len(ids))
 				return
@@ -119,7 +119,7 @@ func TestSearchInvalidIDsInRange(t *testing.T) {
 	}
 }
 
-func TestIsIDInvalid(t *testing.T) {
+func TestIsIDInvalidPart1(t *testing.T) {
 	tests := []struct {
 		name           string
 		id             int
@@ -131,7 +131,7 @@ func TestIsIDInvalid(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := isIDInvalid(tt.id)
+			result := isIDInvalidPart1(tt.id)
 			if result != tt.expectedResult {
 				t.Errorf("expected %v, got %v", tt.expectedResult, result)
 			}
