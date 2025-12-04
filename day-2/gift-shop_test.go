@@ -125,7 +125,8 @@ func TestIsIDInvalid(t *testing.T) {
 		id             int
 		expectedResult bool
 	}{
-		{"valid ID", 50, false},
+		{"valid ID even digits", 50, false},
+		{"valid ID odd digits", 54546, false},
 		{"invalid ID", 223223, true},
 	}
 	for _, tt := range tests {

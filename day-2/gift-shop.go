@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"log/slog"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -37,6 +38,7 @@ func SolveGiftShop() {
 
 func formatInput(rawInput string) ([]string, error) {
 	trimedRawInput := strings.TrimRight(rawInput, "\n")
+	trimedRawInput = strings.TrimRight(trimedRawInput, "\r")
 	if len(trimedRawInput) == 0 {
 		return nil, fmt.Errorf("empty input.txt file")
 	}
@@ -73,11 +75,30 @@ func parseRange(entry string) (Range, error) {
 }
 
 func searchInvalidIDsInRange(r Range) []int {
-	return []int{}
+	invalidIDs := []int{}
+	for id := r.min; id <= r.max; id++ {
+		if isIDInvalid(id) {
+			invalidIDs = append(invalidIDs, id)
+		}
+	}
+	return invalidIDs
 }
 
 func isIDInvalid(id int) bool {
-	return false
+	// Count digits
+	digits := int(math.Log10(float64(id))) + 1
+
+	// Must have an even number of digits
+	if digits%2 != 0 {
+		return false
+	}
+
+	base := int(math.Pow10(digits / 2))
+
+	left := id / base
+	right := id % base
+
+	return left == right
 }
 
 func computeSum(ids []int) int {
