@@ -17,6 +17,8 @@ type Range struct {
 }
 
 func SolveGiftShop() {
+	invalidIDs := []int{}
+
 	formattedInput, err := formatInput(input)
 	if err != nil {
 		panic(err)
@@ -25,7 +27,12 @@ func SolveGiftShop() {
 	if err != nil {
 		panic(err)
 	}
-	slog.Info("Number of ranges", "count", len(ranges))
+	for _, r := range ranges {
+		invalidIDsInRange := searchInvalidIDsInRange(r)
+		invalidIDs = append(invalidIDs, invalidIDsInRange...)
+	}
+	sum := computeSum(invalidIDs)
+	slog.Info("Sum of invalid IDs", "sum", sum)
 }
 
 func formatInput(rawInput string) ([]string, error) {
@@ -63,4 +70,20 @@ func parseRange(entry string) (Range, error) {
 		return Range{}, err
 	}
 	return Range{min: min, max: max}, nil
+}
+
+func searchInvalidIDsInRange(r Range) []int {
+	return []int{}
+}
+
+func isIDInvalid(id int) bool {
+	return false
+}
+
+func computeSum(ids []int) int {
+	sum := 0
+	for _, id := range ids {
+		sum += id
+	}
+	return sum
 }

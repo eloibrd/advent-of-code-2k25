@@ -92,3 +92,68 @@ func TestParseRange(t *testing.T) {
 		})
 	}
 }
+
+func TestSearchInvalidIDsInRange(t *testing.T) {
+	tests := []struct {
+		name        string
+		r           Range
+		expectedIDs []int
+	}{
+		{"no invalid IDs", Range{10, 10}, []int{}},
+		{"one invalid ID", Range{95, 115}, []int{99}},
+		{"multiple invalid IDs", Range{11, 22}, []int{11, 22}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ids := searchInvalidIDsInRange(tt.r)
+			if len(ids) != len(tt.expectedIDs) {
+				t.Errorf("expected %d IDs, got %d", len(tt.expectedIDs), len(ids))
+				return
+			}
+			for i, id := range ids {
+				if id != tt.expectedIDs[i] {
+					t.Errorf("expected ID %d, got %d", tt.expectedIDs[i], id)
+				}
+			}
+		})
+	}
+}
+
+func TestIsIDInvalid(t *testing.T) {
+	tests := []struct {
+		name           string
+		id             int
+		expectedResult bool
+	}{
+		{"valid ID", 50, false},
+		{"invalid ID", 223223, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := isIDInvalid(tt.id)
+			if result != tt.expectedResult {
+				t.Errorf("expected %v, got %v", tt.expectedResult, result)
+			}
+		})
+	}
+}
+
+func TestComputeSum(t *testing.T) {
+	tests := []struct {
+		name        string
+		ids         []int
+		expectedSum int
+	}{
+		{"empty list", []int{}, 0},
+		{"single ID", []int{5}, 5},
+		{"multiple IDs", []int{1, 2, 3, 4, 5}, 15},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sum := computeSum(tt.ids)
+			if sum != tt.expectedSum {
+				t.Errorf("expected sum %d, got %d", tt.expectedSum, sum)
+			}
+		})
+	}
+}
