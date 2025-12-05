@@ -9,5 +9,6 @@ func main() {
 	// day1.SolvePassword(2)
 	// day2.SolveGiftShop(1)
 	// day2.SolveGiftShop(2)
-	day3.SolveJoltage()
+	// day3.SolveJoltage(1)
+	day3.SolveJoltage(2)
 }

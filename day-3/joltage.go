@@ -4,6 +4,8 @@ import (
 	_ "embed"
 	"fmt"
 	"log/slog"
+	"math"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -15,15 +17,32 @@ type PowerBank struct {
 	batteries []int
 }
 
-func SolveJoltage() {
+func SolveJoltage(part int) {
+	if !slices.Contains([]int{1, 2}, part) {
+		panic("Called with invalid part")
+	}
+
+	var numberOfBatteries int
+	if part == 1 {
+		numberOfBatteries = 2
+	} else {
+		numberOfBatteries = 12
+	}
+
 	powerBanks, err := readInput(input)
 	if err != nil {
 		panic(err)
 	}
+
 	totalJoltageOutput := 0
 	for _, powerBank := range powerBanks {
-		totalJoltageOutput += powerBank.maxJoltage()
+		joltage, err := powerBank.maxJoltage(numberOfBatteries)
+		if err != nil {
+			panic(err)
+		}
+		totalJoltageOutput += joltage
 	}
+
 	slog.Info("Max Joltage output for input found : ", slog.Int("value", totalJoltageOutput))
 }
 
@@ -61,10 +80,27 @@ func convertToPowerBank(input string) (PowerBank, error) {
 	return powerBank, nil
 }
 
-func (p PowerBank) maxJoltage() int {
-	max, maxIndex := findMax(p.batteries, 0, len(p.batteries)-1)
-	max2, _ := findMax(p.batteries, maxIndex+1, len(p.batteries))
-	return max*10 + max2
+func (p PowerBank) maxJoltage(numberOfBatteries int) (int, error) {
+	if len(p.batteries) < numberOfBatteries {
+		return 0, fmt.Errorf("not enough batteries to compute max joltage")
+	}
+	batteriesToTurnOn := []int{}
+	currentMaxIndex := 0
+	for i := numberOfBatteries - 1; i >= 0; i-- {
+		max, maxIndex := findMax(p.batteries, currentMaxIndex, len(p.batteries)-i)
+		currentMaxIndex = maxIndex + 1
+		batteriesToTurnOn = append(batteriesToTurnOn, max)
+	}
+	if len(batteriesToTurnOn) != numberOfBatteries {
+		return 0, fmt.Errorf("an error occured while computing joltage")
+	}
+	joltage := 0
+	pow := numberOfBatteries - 1
+	for _, battery := range batteriesToTurnOn {
+		joltage += battery * int(math.Pow(float64(10), float64(pow)))
+		pow--
+	}
+	return joltage, nil
 }
 
 func findMax(array []int, start int, end int) (int, int) {

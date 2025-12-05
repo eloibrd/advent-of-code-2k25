@@ -46,33 +46,93 @@ func TestConvertToPowerBank(t *testing.T) {
 	}
 }
 
-func TestMaxJoltage(t *testing.T) {
+func TestMaxJoltagePart1(t *testing.T) {
 	tests := []struct {
-		name     string
-		input    PowerBank
-		expected int
+		name      string
+		input     PowerBank
+		expected  int
+		shouldErr bool
 	}{
 		{
-			name:     "should find max joltage",
-			input:    PowerBank{batteries: []int{1, 3, 2, 5, 4}},
-			expected: 54,
+			name:      "should find max joltage",
+			input:     PowerBank{batteries: []int{1, 3, 2, 5, 4}},
+			expected:  54,
+			shouldErr: false,
 		},
 		{
-			name:     "should find max joltage with duplicates",
-			input:    PowerBank{batteries: []int{6, 7, 5, 3, 7, 4, 2, 5}},
-			expected: 77,
+			name:      "should find max joltage with duplicates",
+			input:     PowerBank{batteries: []int{6, 7, 5, 3, 7, 4, 2, 5}},
+			expected:  77,
+			shouldErr: false,
 		},
 		{
-			name:     "should find max joltage with highest at the end",
-			input:    PowerBank{batteries: []int{6, 7, 5, 3, 7, 4, 2, 9}},
-			expected: 79,
+			name:      "should find max joltage with highest at the end",
+			input:     PowerBank{batteries: []int{6, 7, 5, 3, 7, 4, 2, 9}},
+			expected:  79,
+			shouldErr: false,
+		},
+		{
+			name:      "should not find max joltage and return error",
+			input:     PowerBank{batteries: []int{6}},
+			expected:  0,
+			shouldErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := tt.input.maxJoltage()
+			result, err := tt.input.maxJoltage(2)
+			if err != nil && !tt.shouldErr {
+				t.Errorf("%v.MaxJoltage(2) unexpected error: %v", tt.input, err)
+				return
+			}
+			if err != nil && tt.shouldErr {
+				return
+			}
 			if result != tt.expected {
-				t.Errorf("MaxJoltage(%v) = %d; want %d", tt.input, result, tt.expected)
+				t.Errorf("%v.MaxJoltage(2) = %d; want %d", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestMaxJoltagePart2(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     PowerBank
+		expected  int
+		shouldErr bool
+	}{
+		{
+			name:      "should find max joltage",
+			input:     PowerBank{batteries: []int{8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9}},
+			expected:  811111111119,
+			shouldErr: false,
+		},
+		{
+			name:      "should find max joltage 2",
+			input:     PowerBank{batteries: []int{2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 7, 8}},
+			expected:  434234234278,
+			shouldErr: false,
+		},
+		{
+			name:      "should not find max joltage and return error",
+			input:     PowerBank{batteries: []int{1, 3, 2, 5, 4}},
+			expected:  0,
+			shouldErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := tt.input.maxJoltage(12)
+			if err != nil && !tt.shouldErr {
+				t.Errorf("%v.MaxJoltage(12) unexpected error: %v", tt.input, err)
+				return
+			}
+			if err != nil && tt.shouldErr {
+				return
+			}
+			if result != tt.expected {
+				t.Errorf("%v.MaxJoltage(12) = %d; want %d", tt.input, result, tt.expected)
 			}
 		})
 	}
