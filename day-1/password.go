@@ -19,10 +19,13 @@ const (
 //go:embed input.txt
 var input string
 
-func SolvePassword(part int) {
+func SolvePassword(part int) (int, error) {
 	if !slices.Contains([]int{1, 2}, part) {
-		panic("Called with invalid part")
+		return 0, fmt.Errorf("called with invalid part")
 	}
+
+	slog.Info("Computing password...")
+
 	position := 50
 	password := 0
 
@@ -38,7 +41,7 @@ func SolvePassword(part int) {
 		}
 	}
 
-	slog.Info(fmt.Sprintf("DAY 1 | Found the password for part %d : ", part), slog.String("value", strconv.Itoa(password)))
+	return password, nil
 }
 
 func readInput(pathToFile string) []string {

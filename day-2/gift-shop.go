@@ -20,20 +20,22 @@ type Range struct {
 
 type isIDInvalidFn func(int) bool
 
-func SolveGiftShop(part int) {
+func SolveGiftShop(part int) (int, error) {
 	if !slices.Contains([]int{1, 2}, part) {
-		panic("Called with invalid part")
+		return 0, fmt.Errorf("called with invalid part")
 	}
+
+	slog.Info("Computing invalid IDs...")
 
 	invalidIDs := []int{}
 
 	formattedInput, err := formatInput(input)
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
 	ranges, err := inputsToRanges(formattedInput)
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
 	for _, r := range ranges {
 		var validationFn isIDInvalidFn
@@ -46,7 +48,7 @@ func SolveGiftShop(part int) {
 		invalidIDs = append(invalidIDs, invalidIDsInRange...)
 	}
 	sum := computeSum(invalidIDs)
-	slog.Info("Sum of invalid IDs", "sum", sum)
+	return sum, nil
 }
 
 func formatInput(rawInput string) ([]string, error) {

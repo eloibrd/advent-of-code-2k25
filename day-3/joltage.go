@@ -17,10 +17,12 @@ type PowerBank struct {
 	batteries []int
 }
 
-func SolveJoltage(part int) {
+func SolveJoltage(part int) (int, error) {
 	if !slices.Contains([]int{1, 2}, part) {
-		panic("Called with invalid part")
+		return 0, fmt.Errorf("called with invalid part")
 	}
+
+	slog.Info("Computing max Joltage output...")
 
 	var numberOfBatteries int
 	if part == 1 {
@@ -31,19 +33,19 @@ func SolveJoltage(part int) {
 
 	powerBanks, err := readInput(input)
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
 
 	totalJoltageOutput := 0
 	for _, powerBank := range powerBanks {
 		joltage, err := powerBank.maxJoltage(numberOfBatteries)
 		if err != nil {
-			panic(err)
+			return 0, err
 		}
 		totalJoltageOutput += joltage
 	}
 
-	slog.Info("Max Joltage output for input found : ", slog.Int("value", totalJoltageOutput))
+	return totalJoltageOutput, nil
 }
 
 func readInput(input string) ([]PowerBank, error) {
