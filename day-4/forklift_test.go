@@ -78,7 +78,7 @@ func TestIsRollAccessible(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			result := isRollAccessible(tc.i, tc.j, tc.table)
+			result := isRollAccessible(Position{tc.i, tc.j}, tc.table)
 			if !reflect.DeepEqual(result, tc.expected) {
 				t.Errorf("isRollAccessible(%d, %d, table...) = %t; want %t", tc.i, tc.j, result, tc.expected)
 			}

@@ -11,11 +11,16 @@ import (
 //go:embed input.txt
 var input string
 
+type Position struct {
+	i int
+	j int
+}
+
 const ROLL_CHAR string = "@"
 const MAX_ADJACENT_ROLLS int = 3
 
 func SolveForklift(part int) (int, error) {
-	if !slices.Contains([]int{1}, part) {
+	if !slices.Contains([]int{1, 2}, part) {
 		return 0, fmt.Errorf("called with invalid part")
 	}
 
@@ -27,9 +32,14 @@ func SolveForklift(part int) (int, error) {
 		return 0, err
 	}
 
-	result := computeNumberOfAccessibleRolls(table)
+	if part == 1 {
+		accessibleRolls := computeAccessibleRolls(table)
+		return len(accessibleRolls), nil
+	}
 
-	return result, nil
+	totalCount := 0
+
+	return totalCount, nil
 }
 
 func readInput() ([][]string, error) {
@@ -54,28 +64,28 @@ func readInput() ([][]string, error) {
 	return table, nil
 }
 
-func computeNumberOfAccessibleRolls(table [][]string) int {
-	accessibleRollsCounter := 0
+func computeAccessibleRolls(table [][]string) []Position {
+	accessiblePositions := []Position{}
 	for i, row := range table {
 		for j := range row {
-			if table[i][j] == ROLL_CHAR && isRollAccessible(i, j, table) {
-				accessibleRollsCounter++
+			if table[i][j] == ROLL_CHAR && isRollAccessible(Position{i, j}, table) {
+				accessiblePositions = append(accessiblePositions, Position{i, j})
 			}
 		}
 	}
-	return accessibleRollsCounter
+	return accessiblePositions
 }
 
-func isRollAccessible(i, j int, table [][]string) bool {
-	minY := max(i-1, 0)
-	maxY := min(i+1, len(table)-1)
-	minX := max(j-1, 0)
-	maxX := min(j+1, len(table[0])-1)
+func isRollAccessible(pos Position, table [][]string) bool {
+	minY := max(pos.i-1, 0)
+	maxY := min(pos.i+1, len(table)-1)
+	minX := max(pos.j-1, 0)
+	maxX := min(pos.j+1, len(table[0])-1)
 
 	adjacentRollsCount := 0
 	for y := minY; y < maxY+1; y++ {
 		for x := minX; x < maxX+1; x++ {
-			if x == j && y == i {
+			if x == pos.j && y == pos.i {
 				continue
 			}
 			if table[y][x] == ROLL_CHAR {
