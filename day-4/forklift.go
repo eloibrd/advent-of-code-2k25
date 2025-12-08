@@ -17,6 +17,7 @@ type Position struct {
 }
 
 const ROLL_CHAR string = "@"
+const REMOVED_ROLL_CHAR string = "x"
 const MAX_ADJACENT_ROLLS int = 3
 
 func SolveForklift(part int) (int, error) {
@@ -38,6 +39,15 @@ func SolveForklift(part int) (int, error) {
 	}
 
 	totalCount := 0
+	looping := true
+	for looping {
+		accessibleRolls := computeAccessibleRolls(table)
+		table = updateTable(table, accessibleRolls)
+		totalCount += len(accessibleRolls)
+		if len(accessibleRolls) == 0 {
+			looping = false
+		}
+	}
 
 	return totalCount, nil
 }
@@ -94,4 +104,11 @@ func isRollAccessible(pos Position, table [][]string) bool {
 		}
 	}
 	return adjacentRollsCount <= MAX_ADJACENT_ROLLS
+}
+
+func updateTable(table [][]string, accessibleRolls []Position) [][]string {
+	for _, pos := range accessibleRolls {
+		table[pos.i][pos.j] = REMOVED_ROLL_CHAR
+	}
+	return table
 }
