@@ -32,10 +32,14 @@ func TestParseIDRange(t *testing.T) {
 				t.Errorf("parseIDRange(%s) unexpected error: %v", tc.input, err)
 				return
 			}
+			if err == nil && tc.shouldErr {
+				t.Errorf("parseIDRange(%s) returns a result; expected an error", tc.input)
+				return
+			}
 			if err != nil && tc.shouldErr {
 				return
 			}
-			if reflect.DeepEqual(result, tc.expected) {
+			if !reflect.DeepEqual(result, tc.expected) {
 				t.Errorf("parseIDRange(%s) = %s; want %s", tc.input, result.String(), tc.expected.String())
 			}
 		})
@@ -62,8 +66,8 @@ func TestParseInventory(t *testing.T) {
 			shouldErr: false,
 		},
 		{
-			name:      "should return an error : no delimiter in range input",
-			input:     "1345",
+			name:      "should return an error : empty inventory",
+			input:     "",
 			expected:  []int{},
 			shouldErr: true,
 		},
@@ -75,10 +79,14 @@ func TestParseInventory(t *testing.T) {
 				t.Errorf("parseInventory(%s) unexpected error: %v", tc.input, err)
 				return
 			}
+			if err == nil && tc.shouldErr {
+				t.Errorf("parseInventory(%s) returns %v; expected an error", tc.input, result)
+				return
+			}
 			if err != nil && tc.shouldErr {
 				return
 			}
-			if reflect.DeepEqual(result, tc.expected) {
+			if !reflect.DeepEqual(result, tc.expected) {
 				t.Errorf("parseInventory(%s) = %v; want %v", tc.input, result, tc.expected)
 			}
 		})
