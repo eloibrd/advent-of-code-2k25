@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,8 +22,12 @@ func (r IDRange) String() string {
 	return fmt.Sprintf("[%d, %d]", r.min, r.max)
 }
 
+func (r IDRange) isInRange(i int) bool {
+	return i >= r.min && i <= r.max
+}
+
 func SolveCafeteriaInventory(part int) (int, error) {
-	if !slices.Contains([]int{1}, part) {
+	if !slices.Contains([]int{1, 2}, part) {
 		return 0, fmt.Errorf("called with invalid part")
 	}
 
@@ -33,9 +38,14 @@ func SolveCafeteriaInventory(part int) (int, error) {
 		return 0, err
 	}
 
-	freshItemsCount := computeFreshItemsCount(idRanges, inventory)
+	var result int
+	if part == 1 {
+		result = computeFreshItemsCount(idRanges, inventory)
+	} else {
+		result = computeFreshIDsCount(idRanges)
+	}
 
-	return freshItemsCount, nil
+	return result, nil
 }
 
 func readInput() ([]IDRange, []int, error) {
@@ -109,7 +119,7 @@ func computeFreshItemsCount(idRanges []IDRange, itemList []int) int {
 	for _, itemId := range itemList {
 		isFresh := false
 		for _, idRange := range idRanges {
-			if isItemFresh(idRange, itemId) {
+			if idRange.isInRange(itemId) {
 				isFresh = true
 				break
 			}
@@ -121,6 +131,44 @@ func computeFreshItemsCount(idRanges []IDRange, itemList []int) int {
 	return freshItemsCount
 }
 
-func isItemFresh(idRange IDRange, itemId int) bool {
-	return itemId >= idRange.min && itemId <= idRange.max
+func computeFreshIDsCount(idRanges []IDRange) int {
+	idRanges = mergeOverlappingRanges(idRanges)
+
+	return sumRangesLengths(idRanges)
+}
+
+func mergeOverlappingRanges(idRanges []IDRange) []IDRange {
+	idRanges = sortRangesAsc(idRanges)
+	merged := []IDRange{}
+	cur := idRanges[0]
+	for _, r := range idRanges[1:] {
+		if r.min <= cur.max+1 {
+			if r.max > cur.max {
+				cur.max = r.max
+			}
+		} else {
+			merged = append(merged, cur)
+			cur = r
+		}
+	}
+	merged = append(merged, cur)
+	return merged
+}
+
+func sortRangesAsc(idRanges []IDRange) []IDRange {
+	sort.Slice(idRanges, func(i, j int) bool {
+		if idRanges[i].min == idRanges[j].min {
+			return idRanges[i].max < idRanges[j].max
+		}
+		return idRanges[i].min < idRanges[j].min
+	})
+	return idRanges
+}
+
+func sumRangesLengths(idRanges []IDRange) int {
+	total := 0
+	for _, m := range idRanges {
+		total += (m.max - m.min + 1)
+	}
+	return total
 }
