@@ -129,31 +129,124 @@ func TestComputeFreshItemsCount(t *testing.T) {
 	}
 }
 
-func TestIsItemFresh(t *testing.T) {
+func TestComputeFreshIDsCount(t *testing.T) {
 	tests := []struct {
 		name     string
-		idRange  IDRange
-		itemId   int
-		expected bool
+		idRanges []IDRange
+		expected int
 	}{
 		{
-			name:     "should be fresh",
-			idRange:  IDRange{1, 5},
-			itemId:   1,
-			expected: true,
+			name:     "should compute fresh IDs count - one range",
+			idRanges: []IDRange{{1, 5}},
+			expected: 5,
 		},
 		{
-			name:     "should not be fresh",
-			idRange:  IDRange{50, 90},
-			itemId:   35,
-			expected: false,
+			name:     "should compute fresh IDs count - multiple ranges",
+			idRanges: []IDRange{{1, 5}, {8, 12}},
+			expected: 10,
+		},
+		{
+			name:     "should compute fresh IDs count - multiple ranges overlapping",
+			idRanges: []IDRange{{1, 5}, {8, 12}, {9, 13}},
+			expected: 11,
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			result := isItemFresh(tc.idRange, tc.itemId)
+			result := computeFreshIDsCount(tc.idRanges)
 			if !reflect.DeepEqual(result, tc.expected) {
-				t.Errorf("computeFreshItemsCount(%v, %d) = %v; want %v", tc.idRange, tc.itemId, result, tc.expected)
+				t.Errorf("computeFreshIDsCount(%v) = %v; want %v", tc.idRanges, result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestMergeOverlappingRanges(t *testing.T) {
+	tests := []struct {
+		name     string
+		idRanges []IDRange
+		expected []IDRange
+	}{
+		{
+			name:     "should merge",
+			idRanges: []IDRange{{1, 5}, {4, 12}},
+			expected: []IDRange{{1, 12}},
+		},
+		{
+			name:     "should not merge - single range",
+			idRanges: []IDRange{{1, 5}},
+			expected: []IDRange{{1, 5}},
+		},
+		{
+			name:     "should not merge - multiple ranges not overlapping",
+			idRanges: []IDRange{{1, 5}, {8, 12}},
+			expected: []IDRange{{1, 5}, {8, 12}},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := mergeOverlappingRanges(tc.idRanges)
+			if !reflect.DeepEqual(result, tc.expected) {
+				t.Errorf("mergeOverlappingRanges(%v) = %v; want %v", tc.idRanges, result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestSortRangesAsc(t *testing.T) {
+	tests := []struct {
+		name     string
+		idRanges []IDRange
+		expected []IDRange
+	}{
+		{
+			name:     "should sort - by min",
+			idRanges: []IDRange{{4, 12}, {1, 5}},
+			expected: []IDRange{{1, 5}, {4, 12}},
+		},
+		{
+			name:     "should sort - by max",
+			idRanges: []IDRange{{1, 12}, {1, 5}},
+			expected: []IDRange{{1, 5}, {1, 12}},
+		},
+		{
+			name:     "should not sort - single range",
+			idRanges: []IDRange{{1, 5}},
+			expected: []IDRange{{1, 5}},
+		},
+		{
+			name:     "should not sort - multiple ranges already sorted",
+			idRanges: []IDRange{{1, 5}, {8, 12}},
+			expected: []IDRange{{1, 5}, {8, 12}},
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := sortRangesAsc(tc.idRanges)
+			if !reflect.DeepEqual(result, tc.expected) {
+				t.Errorf("sortRangesAsc(%v) = %v; want %v", tc.idRanges, result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestSumRangesLengths(t *testing.T) {
+	tests := []struct {
+		name     string
+		idRanges []IDRange
+		expected int
+	}{
+		{
+			name:     "should sum",
+			idRanges: []IDRange{{1, 12}, {50, 59}, {111, 120}},
+			expected: 32,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := sumRangesLengths(tc.idRanges)
+			if !reflect.DeepEqual(result, tc.expected) {
+				t.Errorf("sortRangesAsc(%v) = %v; want %v", tc.idRanges, result, tc.expected)
 			}
 		})
 	}
