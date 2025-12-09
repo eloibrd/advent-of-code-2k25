@@ -92,3 +92,69 @@ func TestParseInventory(t *testing.T) {
 		})
 	}
 }
+
+func TestComputeFreshItemsCount(t *testing.T) {
+	tests := []struct {
+		name     string
+		idRanges []IDRange
+		itemList []int
+		expected int
+	}{
+		{
+			name:     "should find in one range",
+			idRanges: []IDRange{{1, 5}},
+			itemList: []int{2},
+			expected: 1,
+		},
+		{
+			name:     "should find in multiple ranges",
+			idRanges: []IDRange{{1, 5}, {50, 90}},
+			itemList: []int{2, 3, 13, 17, 34, 59, 90},
+			expected: 4,
+		},
+		{
+			name:     "should not find in multiple ranges",
+			idRanges: []IDRange{{1, 5}, {50, 90}},
+			itemList: []int{13, 17, 34},
+			expected: 0,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := computeFreshItemsCount(tc.idRanges, tc.itemList)
+			if !reflect.DeepEqual(result, tc.expected) {
+				t.Errorf("computeFreshItemsCount(%v, %v) = %v; want %v", tc.idRanges, tc.itemList, result, tc.expected)
+			}
+		})
+	}
+}
+
+func TestIsItemFresh(t *testing.T) {
+	tests := []struct {
+		name     string
+		idRange  IDRange
+		itemId   int
+		expected bool
+	}{
+		{
+			name:     "should be fresh",
+			idRange:  IDRange{1, 5},
+			itemId:   1,
+			expected: true,
+		},
+		{
+			name:     "should not be fresh",
+			idRange:  IDRange{50, 90},
+			itemId:   35,
+			expected: false,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := isItemFresh(tc.idRange, tc.itemId)
+			if !reflect.DeepEqual(result, tc.expected) {
+				t.Errorf("computeFreshItemsCount(%v, %d) = %v; want %v", tc.idRange, tc.itemId, result, tc.expected)
+			}
+		})
+	}
+}

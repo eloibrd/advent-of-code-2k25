@@ -8,9 +8,9 @@
       "program": "${workspaceFolder}",
       "args": [
         "--day",
-        "4",
+        "5",
         "--part",
-        "2"
+        "1"
       ]
     }
   ]

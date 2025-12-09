@@ -5,6 +5,7 @@ import (
 	day2 "eloibrd/advent-of-code-2k25/day-2"
 	day3 "eloibrd/advent-of-code-2k25/day-3"
 	day4 "eloibrd/advent-of-code-2k25/day-4"
+	day5 "eloibrd/advent-of-code-2k25/day-5"
 	"flag"
 	"fmt"
 	"log"
@@ -37,6 +38,8 @@ func main() {
 		result, err = day3.SolveJoltage(*part)
 	case 4:
 		result, err = day4.SolveForklift(*part)
+	case 5:
+		result, err = day5.SolveCafeteriaInventory(*part)
 	default:
 		log.Fatalf("Day %d not yet implemented", *day)
 	}

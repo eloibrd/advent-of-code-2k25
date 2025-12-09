@@ -35,18 +35,20 @@ func SolveCafeteriaInventory(part int) (int, error) {
 
 	freshItemsCount := computeFreshItemsCount(idRanges, inventory)
 
-	return 0, nil
+	return freshItemsCount, nil
 }
 
 func readInput() ([]IDRange, []int, error) {
 	input = strings.TrimRight(input, "\n")
+	// handle CRLF
+	input = strings.Replace(input, "\r", "", -1)
 	if len(input) == 0 {
 		return nil, nil, fmt.Errorf("empty input.txt file")
 	}
 
 	splittedInput := strings.Split(input, "\n\n")
 	if len(splittedInput) != 2 {
-		return nil, nil, fmt.Errorf("invalid input.txt file")
+		return nil, nil, fmt.Errorf("invalid input.txt file, splitted in %d insteand of 2", len(splittedInput))
 	}
 	freshIDRanges, err := parseIDRanges(splittedInput[0])
 	if err != nil {
@@ -65,8 +67,6 @@ func parseIDRanges(rangesAsStr string) ([]IDRange, error) {
 	idRanges := []IDRange{}
 	splittedInput := strings.Split(rangesAsStr, "\n")
 	for _, rangeAsStr := range splittedInput {
-		// handle CRLF
-		rangeAsStr = strings.TrimRight(rangeAsStr, "\r")
 		idRange, err := parseIDRange(rangeAsStr)
 		if err != nil {
 			return nil, err
@@ -104,11 +104,23 @@ func parseInventory(inventoryAsStr string) ([]int, error) {
 	return inventory, nil
 }
 
-func computeFreshItemsCount(IDRanges []IDRange, itemList []int) int {
+func computeFreshItemsCount(idRanges []IDRange, itemList []int) int {
 	freshItemsCount := 0
-	for _, item := range itemList {
+	for _, itemId := range itemList {
 		isFresh := false
-		// @todo assert item freshness
+		for _, idRange := range idRanges {
+			if isItemFresh(idRange, itemId) {
+				isFresh = true
+				break
+			}
+		}
+		if isFresh {
+			freshItemsCount++
+		}
 	}
 	return freshItemsCount
+}
+
+func isItemFresh(idRange IDRange, itemId int) bool {
+	return itemId >= idRange.min && itemId <= idRange.max
 }
