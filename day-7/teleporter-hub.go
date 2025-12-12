@@ -16,7 +16,7 @@ const SPLITTER_CHAR string = "^"
 var input string
 
 func SolveTeleporterHub(part int) (int, error) {
-	if !slices.Contains([]int{1}, part) {
+	if !slices.Contains([]int{1, 2}, part) {
 		return 0, fmt.Errorf("called with invalid part")
 	}
 
@@ -24,7 +24,12 @@ func SolveTeleporterHub(part int) (int, error) {
 
 	grid := readInput()
 
-	result := computeBeamSplitCount(grid)
+	var result int
+	if part == 1 {
+		result = computeBeamSplitCount(grid)
+	} else {
+		result = computeQuantumPathsCount(grid)
+	}
 
 	return result, nil
 }
@@ -62,4 +67,34 @@ func computeBeamSplitCount(grid [][]string) int {
 		}
 	}
 	return count
+}
+
+func computeQuantumPathsCount(grid [][]string) int {
+	quantumPaths := map[int]int{}
+	for i, value := range grid[0] {
+		if value == START_CHAR {
+			quantumPaths[i] = 1
+			break
+		}
+	}
+
+	for _, line := range grid {
+		nextStep := map[int]int{}
+		for i, value := range line {
+			if value == SPLITTER_CHAR && quantumPaths[i] > 0 {
+				nextStep[i+1] += quantumPaths[i]
+				nextStep[i-1] += quantumPaths[i]
+				delete(quantumPaths, i)
+			}
+		}
+		for i, value := range nextStep {
+			quantumPaths[i] += value
+		}
+	}
+
+	quantumPathsCount := 0
+	for _, value := range quantumPaths {
+		quantumPathsCount += value
+	}
+	return quantumPathsCount
 }
