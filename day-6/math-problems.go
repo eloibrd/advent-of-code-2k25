@@ -37,13 +37,13 @@ func (p *problem) solve() (int, error) {
 }
 
 func SolveMathProblems(part int) (int, error) {
-	if !slices.Contains([]int{1}, part) {
+	if !slices.Contains([]int{1, 2}, part) {
 		return 0, fmt.Errorf("called with invalid part")
 	}
 
 	slog.Info("Computing math problems total...")
 
-	grid, err := readInput()
+	grid, err := readInput(part)
 	if err != nil {
 		return 0, err
 	}
@@ -51,6 +51,8 @@ func SolveMathProblems(part int) (int, error) {
 	var problems []problem
 	if part == 1 {
 		problems, err = transformToPart1Problems(grid)
+	} else {
+		problems, err = transformToPart2Problems(grid)
 	}
 	if err != nil {
 		return 0, err
@@ -64,25 +66,31 @@ func SolveMathProblems(part int) (int, error) {
 	return result, nil
 }
 
-func readInput() ([][]string, error) {
+func readInput(part int) ([][]string, error) {
 	input = strings.TrimRight(input, "\n")
 	// handle CRLF
 	input = strings.Replace(input, "\r", "", -1)
 
-	multipleSpacesRegex, err := regexp.Compile(`\s{2,}`)
-	if err != nil {
-		return nil, err
-	}
-
 	lines := strings.Split(input, "\n")
-	for i := range lines {
-		lines[i] = strings.TrimSpace(lines[i])
-		lines[i] = multipleSpacesRegex.ReplaceAllString(lines[i], " ")
+
+	if part == 1 {
+		multipleSpacesRegex, err := regexp.Compile(`\s{2,}`)
+		if err != nil {
+			return nil, err
+		}
+		for i := range lines {
+			lines[i] = strings.TrimSpace(lines[i])
+			lines[i] = multipleSpacesRegex.ReplaceAllString(lines[i], " ")
+		}
 	}
 
 	grid := [][]string{}
+	sep := " "
+	if part == 2 {
+		sep = ""
+	}
 	for _, line := range lines {
-		grid = append(grid, strings.Split(line, " "))
+		grid = append(grid, strings.Split(line, sep))
 	}
 
 	return grid, nil
@@ -104,6 +112,39 @@ func transformToPart1Problems(grid [][]string) ([]problem, error) {
 			prob.operands = append(prob.operands, num)
 		}
 		problems = append(problems, prob)
+	}
+	return problems, nil
+}
+
+func transformToPart2Problems(grid [][]string) ([]problem, error) {
+	problems := []problem{{}}
+	for col := len(grid[0]) - 1; col >= 0; col-- {
+		chunk := ""
+		for row := range len(grid) {
+			if row != len(grid)-1 {
+				chunk += grid[row][col]
+				continue
+			}
+			chunk = strings.TrimSpace(chunk)
+			// skip empty column
+			if chunk == "" {
+				continue
+			}
+
+			num, err := strconv.Atoi(chunk)
+			if err != nil {
+				return nil, err
+			}
+			problems[len(problems)-1].operands = append(problems[len(problems)-1].operands, num)
+
+			// handle op and init new problem
+			if grid[row][col] != " " {
+				problems[len(problems)-1].operation = grid[row][col]
+				if col != 0 {
+					problems = append(problems, problem{})
+				}
+			}
+		}
 	}
 	return problems, nil
 }
