@@ -43,7 +43,15 @@ func SolveMathProblems(part int) (int, error) {
 
 	slog.Info("Computing math problems total...")
 
-	problems, err := readInput()
+	grid, err := readInput()
+	if err != nil {
+		return 0, err
+	}
+
+	var problems []problem
+	if part == 1 {
+		problems, err = transformToPart1Problems(grid)
+	}
 	if err != nil {
 		return 0, err
 	}
@@ -56,7 +64,7 @@ func SolveMathProblems(part int) (int, error) {
 	return result, nil
 }
 
-func readInput() ([]problem, error) {
+func readInput() ([][]string, error) {
 	input = strings.TrimRight(input, "\n")
 	// handle CRLF
 	input = strings.Replace(input, "\r", "", -1)
@@ -76,6 +84,10 @@ func readInput() ([]problem, error) {
 		grid = append(grid, strings.Split(line, " "))
 	}
 
+	return grid, nil
+}
+
+func transformToPart1Problems(grid [][]string) ([]problem, error) {
 	problems := []problem{}
 	for i := range len(grid[0]) {
 		prob := problem{}
@@ -92,7 +104,6 @@ func readInput() ([]problem, error) {
 		}
 		problems = append(problems, prob)
 	}
-
 	return problems, nil
 }
 
