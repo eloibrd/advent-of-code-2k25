@@ -76,6 +76,7 @@ func readInput() ([][]string, error) {
 
 	lines := strings.Split(input, "\n")
 	for i := range lines {
+		lines[i] = strings.TrimSpace(lines[i])
 		lines[i] = multipleSpacesRegex.ReplaceAllString(lines[i], " ")
 	}
 
